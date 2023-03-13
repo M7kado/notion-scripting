@@ -1,37 +1,34 @@
+import glob
+import importlib
+import os
 import requests
-from secrets import auth_token
+import signal
+import sys
+from secrets_1 import auth_token
 
 from client import Client
 
-# url = "https://api.notion.com/v1/pages/791923b871ad415c9454bdd385edb727"
-
-# headers = {
-#     "accept": "application/json",
-#     "Notion-Version": "2022-06-28",
-#     "Authorization": f'Bearer {auth_token}'
-# }
-
-# body = {
-#     "properties" : {
-#     'title': {'title': [{'text': {'content': 'test !'}}]}}
-# }
-
-# print(headers)
-
-# #response = requests.get(url, headers=headers)
-# response = requests.patch(url, headers=headers, json=body)
-
-# outputjson = response.json()
-
-# print(response.text)
-
 client = Client(auth_token)
 
-page = client.get_page("791923b871ad415c9454bdd385edb727")
+jobs = []
+job_files = os.listdir("src/jobs")
 
-print("old title: ", page.title)
-print("changing title...")
-page.title = "Updated title !"
-print("new title: ", page.title)
+for job_file in job_files:
+    name = os.path.splitext(os.path.basename(job_file))[0]
+    module = importlib.import_module(f"jobs.{name}")
+    job = getattr(module, 'job', None)
+    
+    if job is not None:
+        jobs.append(job)
+        job.init_data(client)
+        job.start_job()
 
-pass
+
+def signal_handler(sig, frame):
+    print('Program interrupted. Exiting...')
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+#signal.pause()
+while True:
+    pass

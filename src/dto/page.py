@@ -14,7 +14,7 @@ class Record(object):
         # internal setting
         # refacto the dictionnary to store more easily accessible data
         self.values[name][name][0]["text"]["content"] = value
-        # api update
+        # api update - only update title for now
         self.client.change_page_title(self.id, value)
 
 class Page(Record):

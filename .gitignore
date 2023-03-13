@@ -1,4 +1,4 @@
-secrets.py
+secrets*
 .venv/
 __pycache__/
 .vscode/
